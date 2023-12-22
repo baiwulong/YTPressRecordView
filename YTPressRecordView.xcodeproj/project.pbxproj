@@ -108,6 +108,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9F9C2C112B3533EC009C7821 /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				EB0F80A5228D5CDD00F886A2 /* category */,
+				EB0F809C228D5BE800F886A2 /* YTRecordStatusView.h */,
+				EB0F809D228D5BE800F886A2 /* YTRecordStatusView.m */,
+				EB0F8095228D5B3C00F886A2 /* YTHoldButton.h */,
+				EB0F8096228D5B3C00F886A2 /* YTHoldButton.m */,
+				EB0F809F228D5C0B00F886A2 /* YTRecordPowerAnimationView.h */,
+				EB0F80A0228D5C0B00F886A2 /* YTRecordPowerAnimationView.m */,
+				EB19D0E522929D2F0052BC5B /* YTRecordFileManager.h */,
+				EB19D0E622929D2F0052BC5B /* YTRecordFileManager.m */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
 		EB0F8057228D5B1F00F886A2 = {
 			isa = PBXGroup;
 			children = (
@@ -167,19 +183,11 @@
 		EB0F8098228D5B6300F886A2 /* class */ = {
 			isa = PBXGroup;
 			children = (
-				EB0F80A5228D5CDD00F886A2 /* category */,
-				EB0F809C228D5BE800F886A2 /* YTRecordStatusView.h */,
-				EB0F809D228D5BE800F886A2 /* YTRecordStatusView.m */,
 				EB19D0E2229250350052BC5B /* YTAudioRecordManager.h */,
 				EB19D0E3229250350052BC5B /* YTAudioRecordManager.m */,
 				EB19D0E82292A6780052BC5B /* YTAudioPlayerManager.h */,
 				EB19D0E92292A6780052BC5B /* YTAudioPlayerManager.m */,
-				EB0F8095228D5B3C00F886A2 /* YTHoldButton.h */,
-				EB0F8096228D5B3C00F886A2 /* YTHoldButton.m */,
-				EB0F809F228D5C0B00F886A2 /* YTRecordPowerAnimationView.h */,
-				EB0F80A0228D5C0B00F886A2 /* YTRecordPowerAnimationView.m */,
-				EB19D0E522929D2F0052BC5B /* YTRecordFileManager.h */,
-				EB19D0E622929D2F0052BC5B /* YTRecordFileManager.m */,
+				9F9C2C112B3533EC009C7821 /* Others */,
 			);
 			path = class;
 			sourceTree = "<group>";

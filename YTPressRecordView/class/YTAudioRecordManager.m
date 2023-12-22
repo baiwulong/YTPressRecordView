@@ -68,6 +68,8 @@
     recordFormat.mChannelsPerFrame = YDefalutChannel; //声道数量
     //编码格式
     recordFormat.mFormatID = kAudioFormatLinearPCM;
+    // kLinearPCMFormatFlagIsSignedInteger: 存储的数据类型
+    // kLinearPCMFormatFlagIsPacked: 数据交叉排列
     recordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
     //每采样点占用位数
     recordFormat.mBitsPerChannel = YBitsPerChannel;
@@ -81,20 +83,21 @@
 
 - (void)initAudio {
     //设置音频输入信息和回调
-    OSStatus status = AudioQueueNewInput(&recordFormat, inputBufferHandler, (__bridge void *)(self), NULL, NULL, 0, &audioQRef);
-    
-    if( status != kAudioSessionNoError )
-    {
-        NSLog(@"初始化出错");
+    OSStatus status = AudioQueueNewInput(&recordFormat,
+                                         inputBufferHandlerCallback,
+                                         (__bridge void *)(self),
+                                         NULL,
+                                         NULL,
+                                         0,
+                                         &audioQRef);
+    if( status != kAudioSessionNoError ) {
         return ;
     }
-    
-
     
     //计算估算的缓存区大小
     int frames = [self computeRecordBufferSize:&recordFormat seconds:YBufferDurationSeconds];
     int bufferByteSize = frames * recordFormat.mBytesPerFrame;
-    //        NSLog(@"缓存区大小%d",bufferByteSize);
+
     //创建缓冲器
     for (int i = 0; i < YBufferCount; i++){
         AudioQueueAllocateBuffer(audioQRef, bufferByteSize, &audioBuffers[i]);
@@ -103,45 +106,40 @@
     
 }
 
-- (int)computeRecordBufferSize:(const AudioStreamBasicDescription*)format seconds:(float)seconds
-{
+- (int)computeRecordBufferSize:(const AudioStreamBasicDescription*)format seconds:(float)seconds {
     int packets, frames, bytes = 0;
+    // 统计指定的片段时间段内采用多少个帧
     frames = (int)ceil(seconds * format->mSampleRate);
     
-    if (format->mBytesPerFrame > 0)
-    {
-        bytes = frames * format->mBytesPerFrame;
+    // 存在帧大小时
+    if (format->mBytesPerFrame > 0) {
+        bytes = frames * format->mBytesPerFrame; // 帧 * 帧大小
+        return bytes;
     }
-    else
-    {
-        UInt32 maxPacketSize = 0;
-        if (format->mBytesPerPacket > 0)
-        {
-            maxPacketSize = format->mBytesPerPacket;    // constant packet size
-        }
-        
-        if (format->mFramesPerPacket > 0)
-        {
-            packets = frames / format->mFramesPerPacket;
-        }
-        else
-        {
-            packets = frames;    // worst-case scenario: 1 frame in a packet
-        }
-        
-        if (packets == 0)        // sanity check
-        {
-            packets = 1;
-        }
-        
-        bytes = packets * maxPacketSize;
+    
+    // 不存在帧大小时
+    UInt32 maxPacketSize = 0;
+    if (format->mBytesPerPacket > 0) {
+        maxPacketSize = format->mBytesPerPacket;    // constant packet size
     }
+    if (format->mFramesPerPacket > 0) {
+        packets = frames / format->mFramesPerPacket;
+    } else {
+        packets = frames;    // worst-case scenario: 1 frame in a packet
+    }
+    if (packets == 0) {       // sanity check
+        packets = 1;
+    }
+    bytes = packets * maxPacketSize;
     return bytes;
 }
 
+
+// MARK: - callback
+
+
 //回调
-void inputBufferHandler(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer, const AudioTimeStamp *inStartTime,UInt32 inNumPackets, const AudioStreamPacketDescription *inPacketDesc)
-{
+void inputBufferHandlerCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer, const AudioTimeStamp *inStartTime,UInt32 inNumPackets, const AudioStreamPacketDescription *inPacketDesc) {
     YTAudioRecordManager *audioManager = [YTAudioRecordManager sharedManager];
     if (inNumPackets > 0) {
         //写入文件
@@ -152,8 +150,9 @@ void inputBufferHandler(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRe
        //将缓冲器重新放入缓冲队列，以便重复使用该缓冲器
         AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
     }
-    
 }
+
+// MARK: -
 
 - (void)startRecord
 {
